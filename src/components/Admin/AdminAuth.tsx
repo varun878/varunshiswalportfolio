@@ -19,16 +19,15 @@ export const AdminAuth: React.FC<AdminAuthProps> = ({ onLoginSuccess, onCancel }
 
     setTimeout(() => {
       // Check admin credentials
-      // Default master credentials for Varun: varunshiswal@gmail.com with password or custom admin pass
-      const validEmail = email.trim().toLowerCase() === 'varunshiswal@gmail.com' || email.trim().toLowerCase() === 'admin@secops.local';
-      
-      // Allow initial setup with default passwords or any valid non-empty password for the authorized admin
-      if (validEmail && (password === 'admin123' || password === 'varun@sec2026' || password.length >= 6)) {
+      // Single authorized admin account for Varun with a fixed password
+      const validEmail = email.trim().toLowerCase() === 'varunshiswal@gmail.com';
+
+      if (validEmail && password === 'varunshiswal@2004') {
         onLoginSuccess();
       } else if (!validEmail) {
         setError('Access restricted: Only authorized administrator account can log in.');
       } else {
-        setError('Invalid password. Default initial password is "admin123" or minimum 6 characters.');
+        setError('Invalid password.');
       }
       setLoading(false);
     }, 400);
