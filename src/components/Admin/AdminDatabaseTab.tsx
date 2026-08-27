@@ -140,7 +140,7 @@ export const AdminDatabaseTab: React.FC<AdminDatabaseTabProps> = ({ portfolioDat
               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">Important</span>
             </h4>
             <p className="text-xs text-gray-300 leading-relaxed">
-              When you edit inside this Admin Panel, your changes are saved to Supabase Cloud. However, for <strong>other visitors and devices</strong> to read your Supabase database, you <strong>must add these 2 Environment Variables in your Vercel Dashboard</strong>:
+              This project&apos;s Supabase connection is provisioned automatically, so every visitor on every device reads and writes the same cloud database &mdash; no manual setup needed here. If you ever deploy this codebase somewhere else (outside v0/Vercel with the integration attached), just set these 2 Environment Variables in that host&apos;s dashboard:
             </p>
           </div>
         </div>
@@ -148,13 +148,13 @@ export const AdminDatabaseTab: React.FC<AdminDatabaseTabProps> = ({ portfolioDat
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
           <div className="p-3 rounded-xl bg-[#111827] border border-gray-700/80 flex items-center justify-between">
             <div>
-              <div className="text-[11px] font-semibold text-gray-400">Vercel Variable 1</div>
-              <code className="text-xs font-mono font-bold text-blue-300">VITE_SUPABASE_URL</code>
+              <div className="text-[11px] font-semibold text-gray-400">Environment Variable 1</div>
+              <code className="text-xs font-mono font-bold text-blue-300">NEXT_PUBLIC_SUPABASE_URL</code>
             </div>
             <button
               onClick={() => {
-                navigator.clipboard.writeText('VITE_SUPABASE_URL');
-                alert('Copied "VITE_SUPABASE_URL" to clipboard!');
+                navigator.clipboard.writeText('NEXT_PUBLIC_SUPABASE_URL');
+                alert('Copied "NEXT_PUBLIC_SUPABASE_URL" to clipboard!');
               }}
               className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
               title="Copy Key Name"
@@ -165,13 +165,13 @@ export const AdminDatabaseTab: React.FC<AdminDatabaseTabProps> = ({ portfolioDat
 
           <div className="p-3 rounded-xl bg-[#111827] border border-gray-700/80 flex items-center justify-between">
             <div>
-              <div className="text-[11px] font-semibold text-gray-400">Vercel Variable 2</div>
-              <code className="text-xs font-mono font-bold text-blue-300">VITE_SUPABASE_ANON_KEY</code>
+              <div className="text-[11px] font-semibold text-gray-400">Environment Variable 2</div>
+              <code className="text-xs font-mono font-bold text-blue-300">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>
             </div>
             <button
               onClick={() => {
-                navigator.clipboard.writeText('VITE_SUPABASE_ANON_KEY');
-                alert('Copied "VITE_SUPABASE_ANON_KEY" to clipboard!');
+                navigator.clipboard.writeText('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+                alert('Copied "NEXT_PUBLIC_SUPABASE_ANON_KEY" to clipboard!');
               }}
               className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
               title="Copy Key Name"
@@ -182,7 +182,7 @@ export const AdminDatabaseTab: React.FC<AdminDatabaseTabProps> = ({ portfolioDat
         </div>
 
         <div className="text-[11px] text-gray-400 pt-1 flex items-center gap-1.5">
-          <span className="text-blue-400 font-bold">Quick Step:</span> In Vercel &rarr; Your Project &rarr; Settings &rarr; Environment Variables &rarr; Add both variables &rarr; Redeploy project.
+          <span className="text-blue-400 font-bold">Note:</span> On this v0/Vercel project these are already injected automatically via the connected Supabase integration &mdash; the form below is only for overriding with a different Supabase project if you want to.
         </div>
       </div>
 

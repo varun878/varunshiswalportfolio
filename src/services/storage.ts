@@ -73,10 +73,13 @@ class StorageService {
   }
 
   public getSupabaseConfig(): SupabaseConfig {
-    // 1. Check Vite / Vercel Environment Variables
+    // 1. Check Vite / Vercel Environment Variables.
+    // The connected Supabase integration injects NEXT_PUBLIC_SUPABASE_URL /
+    // NEXT_PUBLIC_SUPABASE_ANON_KEY. VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY
+    // are also supported for manual overrides.
     const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
-    const envUrl = metaEnv?.VITE_SUPABASE_URL || '';
-    const envKey = metaEnv?.VITE_SUPABASE_ANON_KEY || '';
+    const envUrl = metaEnv?.NEXT_PUBLIC_SUPABASE_URL || metaEnv?.VITE_SUPABASE_URL || '';
+    const envKey = metaEnv?.NEXT_PUBLIC_SUPABASE_ANON_KEY || metaEnv?.VITE_SUPABASE_ANON_KEY || '';
 
     // 2. Check LocalStorage configuration set from Admin Panel
     let localUrl = '';
