@@ -1,69 +1,10 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { PortfolioData, SupabaseConfig } from '../types';
 import { INITIAL_PORTFOLIO_DATA } from '../data/initialData';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/supabaseCredentials';
 
 const LOCAL_STORAGE_KEY = 'varunshiswal_portfolio_data_v1';
-const SUPABASE_CONFIG_KEY = 'varunshiswal_supabase_config';
 const ADMIN_AUTH_KEY = 'varunshiswal_admin_auth';
-
-// Robust, idempotent SQL table initialization script for Supabase SQL Editor
-export const SUPABASE_SQL_SCHEMA = `-- VarunShiswal_SEC Portfolio Database Schema for Supabase
--- Run this in your Supabase SQL Editor (https://app.supabase.com/project/_/sql)
-
--- 1. Create table for portfolio content
-CREATE TABLE IF NOT EXISTS public.site_content (
-  key TEXT PRIMARY KEY,
-  data JSONB NOT NULL,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- 2. Enable Row Level Security (RLS)
-ALTER TABLE public.site_content ENABLE ROW LEVEL SECURITY;
-
--- 3. Public read policy (allows all visitors on any device to view your portfolio)
-DROP POLICY IF EXISTS "Public Read Access" ON public.site_content;
-CREATE POLICY "Public Read Access" 
-ON public.site_content 
-FOR SELECT 
-TO public, anon, authenticated 
-USING (true);
-
--- 4. Full access policy (allows admin panel to save changes globally)
-DROP POLICY IF EXISTS "Allow Full Access" ON public.site_content;
-CREATE POLICY "Allow Full Access" 
-ON public.site_content 
-FOR ALL 
-TO public, anon, authenticated 
-USING (true) 
-WITH CHECK (true);
-
--- 5. Create Storage Bucket for Gallery images
-INSERT INTO storage.buckets (id, name, public) 
-VALUES ('gallery', 'gallery', true)
-ON CONFLICT (id) DO UPDATE SET public = true;
-
--- 6. Storage Bucket Access Policies
-DROP POLICY IF EXISTS "Public Gallery Read" ON storage.objects;
-CREATE POLICY "Public Gallery Read" 
-ON storage.objects 
-FOR SELECT 
-TO public, anon, authenticated 
-USING (bucket_id = 'gallery');
-
-DROP POLICY IF EXISTS "Public Gallery Upload" ON storage.objects;
-CREATE POLICY "Public Gallery Upload" 
-ON storage.objects 
-FOR INSERT 
-TO public, anon, authenticated 
-WITH CHECK (bucket_id = 'gallery');
-
-DROP POLICY IF EXISTS "Public Gallery Update" ON storage.objects;
-CREATE POLICY "Public Gallery Update" 
-ON storage.objects 
-FOR UPDATE 
-TO public, anon, authenticated 
-USING (bucket_id = 'gallery');
-`;
 
 class StorageService {
   private client: SupabaseClient | null = null;
@@ -73,45 +14,19 @@ class StorageService {
   }
 
   public getSupabaseConfig(): SupabaseConfig {
-    // 1. Check Vite / Vercel Environment Variables
-    const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
-    const envUrl = metaEnv?.VITE_SUPABASE_URL || '';
-    const envKey = metaEnv?.VITE_SUPABASE_ANON_KEY || '';
-
-    // 2. Check LocalStorage configuration set from Admin Panel
-    let localUrl = '';
-    let localKey = '';
-    try {
-      const stored = localStorage.getItem(SUPABASE_CONFIG_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        localUrl = parsed.url || '';
-        localKey = parsed.anonKey || '';
-      }
-    } catch {
-      // fallback
-    }
-
-    const activeUrl = envUrl || localUrl;
-    const activeKey = envKey || localKey;
-
+    // Credentials are hardcoded in src/config/supabaseCredentials.ts so the
+    // database connection works on ANY deployment target with zero setup.
     return {
-      url: activeUrl,
-      anonKey: activeKey,
-      isConnected: Boolean(activeUrl && activeKey)
+      url: SUPABASE_URL,
+      anonKey: SUPABASE_ANON_KEY,
+      isConnected: Boolean(SUPABASE_URL && SUPABASE_ANON_KEY)
     };
   }
 
-  public saveSupabaseConfig(config: SupabaseConfig): void {
-    localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify(config));
-    this.initSupabaseClient();
-  }
-
   public initSupabaseClient(): void {
-    const config = this.getSupabaseConfig();
-    if (config.url && config.anonKey) {
+    if (SUPABASE_URL && SUPABASE_ANON_KEY) {
       try {
-        this.client = createClient(config.url, config.anonKey, {
+        this.client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
           auth: {
             persistSession: false
           }
@@ -125,25 +40,26 @@ class StorageService {
     }
   }
 
-  public async testSupabaseConnection(url: string, key: string): Promise<{ success: boolean; message: string }> {
+  public async testSupabaseConnection(): Promise<{ success: boolean; message: string }> {
     try {
-      if (!url || !key) {
-        return { success: false, message: 'URL and Anon Key are required.' };
+      if (!this.client) {
+        this.initSupabaseClient();
       }
-      const testClient = createClient(url, key, { auth: { persistSession: false } });
-      const { data, error } = await testClient.from('site_content').select('key').limit(1);
-      
+      if (!this.client) {
+        return { success: false, message: 'Supabase credentials are not configured.' };
+      }
+      const { error } = await this.client.from('site_content').select('key').limit(1);
+
       if (error) {
-        // Missing table error check
         if (error.message.includes('relation') || error.message.includes('does not exist') || error.code === '42P01') {
           return {
-            success: true,
-            message: 'Connected to Supabase! However, the site_content table is missing. Copy and run the SQL migration script below in your Supabase SQL Editor.'
+            success: false,
+            message: 'Connected to Supabase, but the site_content table is missing. Please contact the site owner.'
           };
         }
         return { success: false, message: `Supabase Error (${error.code || 'RLS'}): ${error.message}` };
       }
-      return { success: true, message: 'Successfully connected and verified Supabase database!' };
+      return { success: true, message: 'Live database connected and verified. All changes sync globally.' };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown connection error';
       return { success: false, message: msg };

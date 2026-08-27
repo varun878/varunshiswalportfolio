@@ -6,6 +6,9 @@ import {defineConfig} from 'vite';
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
+    // Also expose NEXT_PUBLIC_ vars (used by the connected Supabase integration)
+    // to the client bundle, in addition to Vite's default VITE_ prefix.
+    envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
