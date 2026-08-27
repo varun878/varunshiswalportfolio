@@ -71,7 +71,7 @@ export const AdminAuth: React.FC<AdminAuthProps> = ({ onLoginSuccess, onCancel }
             <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
             <div>
               <span className="font-semibold text-white">Authorized Single-Admin Login:</span>
-              <p className="text-[11px] text-gray-300 mt-0.5">
+              <p className="text-[11px] text-gray-300 mt-0.5 hidden">
                 Pre-configured for <code>varunshiswal@gmail.com</code>. Default initial password: <code>admin123</code>.
               </p>
             </div>
