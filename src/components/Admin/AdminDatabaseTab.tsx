@@ -182,7 +182,7 @@ export const AdminDatabaseTab: React.FC<AdminDatabaseTabProps> = ({ portfolioDat
         </div>
 
         <div className="text-[11px] text-gray-400 pt-1 flex items-center gap-1.5">
-          <span className="text-blue-400 font-bold">Quick Step:</span> In Vercel $\rightarrow$ Your Project $\rightarrow$ Settings $\rightarrow$ Environment Variables $\rightarrow$ Add both variables $\rightarrow$ Redeploy project.
+          <span className="text-blue-400 font-bold">Quick Step:</span> In Vercel &rarr; Your Project &rarr; Settings &rarr; Environment Variables &rarr; Add both variables &rarr; Redeploy project.
         </div>
       </div>
 
